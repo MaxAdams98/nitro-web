@@ -25,7 +25,8 @@ export const optionalEmailConfigKeys = ['emailReplyTo', 'emailTestMode', 'mailgu
  * @param {string} opts.template - Template name or raw HTML, e.g., 'reset-password'
  * @param {string} opts.to - Recipient(s), e.g. "Bruce<bruce@wayneenterprises.com>,..."
  * @param {Config} opts.config - Config object
- * @param {string} [opts.bcc] - BCC, e.g. "Bruce<bruce@wayneenterprises.com>" (not sent in development)
+ * @param {string} [opts.cc] - CC, e.g. "Bruce<bruce@wayneenterprises.com>,..." (not sent in development)
+ * @param {string} [opts.bcc] - BCC, e.g. "Bruce<bruce@wayneenterprises.com>,..." (not sent in development)
  * @param {object} [opts.data] - common template data shared across recipients
  * @param {object} [opts.swigData] - vars for Nunjucks/Swig render only (not sent to Mailgun). Inherits data.
  * @param {string} [opts.from] - sender address, e.g. "Bruce<bruce@wayneenterprises.com>"
@@ -41,6 +42,7 @@ export async function sendEmail({
   template,
   to, 
   config,
+  cc,
   bcc, 
   data,
   swigData,
@@ -89,13 +91,14 @@ export async function sendEmail({
     }
   }
 
-  const toSplit = to.split(',')
+  // Copied recipients need their own values too, Mailgun doesn't share them from `to`
+  const recipients = [to, cc, bcc].filter(Boolean).join(',').split(',')
 
   // Add default recipientVariables
   if (!recipientVariables) recipientVariables = {}
 
   // Add default values to recipientVariables
-  for (let toNameEmail of toSplit) {
+  for (let toNameEmail of recipients) {
     const [toName, toEmail] = getNameEmail(toNameEmail)
     recipientVariables[toEmail] = {
       ...defaultData,
@@ -108,6 +111,7 @@ export async function sendEmail({
 
   let settings = {
     attachments: attachments,
+    cc: cc,
     bcc: bcc,
     emailTemplateDir: getDirectories(path, config.pwd).emailTemplateDir,
     from: from,
@@ -186,7 +190,9 @@ function processTemplate(settings, html) {
   if (!settings.to.match(/,/) && Object.keys(settings.recipientVariables).length) {
     const recipientVariables = settings.recipientVariables[Object.keys(settings.recipientVariables)[0]]
     for (let key in recipientVariables) {
-      html = html.replace(new RegExp('%recipient\\.' + key + '%', 'g'), recipientVariables[key])
+      const placeholder = new RegExp('%recipient\\.' + key + '%', 'g')
+      html = html.replace(placeholder, recipientVariables[key])
+      if (settings.subject) settings.subject = settings.subject.replace(placeholder, recipientVariables[key])
     }
   }
   // Extract the subject from the template
@@ -204,15 +210,17 @@ async function sendWithMailgun(settings, html) {
   // Supports batch sending via recipientVariables, limit 1000 emails
   // https://documentation.mailgun.com/en/latest/user_manual.html?highlight=batch%20sending#batch-sending
   const processedhtml = await processTemplate(settings, html)
+  const copies = { ...(settings.cc ? { cc: settings.cc } : {}), ...(settings.bcc ? { bcc: settings.bcc } : {}) }
   const mailgunOpts = {
-    ...(settings.bcc && !settings.isDev? { bcc: settings.bcc } : {}),
+    ...(settings.isDev ? {} : copies),
     ...(settings.attachments?.length ? { attachments: settings.attachments } : {}),
     from: settings.from,
     html: processedhtml,
     'h:Reply-To': settings.replyTo,
     subject: settings.subject,
     to: settings.to,
-    ...(!settings.recipientVariables? {} : {
+    // A single `to` already had its placeholders filled in processTemplate
+    ...(!settings.recipientVariables || !settings.to.match(/,/) ? {} : {
       'recipient-variables': typeof settings.recipientVariables == 'string'
         ? settings.recipientVariables
         : JSON.stringify(settings.recipientVariables),
@@ -221,6 +229,7 @@ async function sendWithMailgun(settings, html) {
   if (settings.test && settings.isDev) {
     console.info('Test mode: sendEmail mailgunOpts', {
       ...mailgunOpts,
+      ...copies,
       html: null,
       'recipient-variables': settings.recipientVariables,
       attachments: settings.attachments?.map((a) => `${a.filename} (${a.content?.length} bytes)`),

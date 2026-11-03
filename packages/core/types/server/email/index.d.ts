@@ -6,7 +6,8 @@
  * @param {string} opts.template - Template name or raw HTML, e.g., 'reset-password'
  * @param {string} opts.to - Recipient(s), e.g. "Bruce<bruce@wayneenterprises.com>,..."
  * @param {Config} opts.config - Config object
- * @param {string} [opts.bcc] - BCC, e.g. "Bruce<bruce@wayneenterprises.com>" (not sent in development)
+ * @param {string} [opts.cc] - CC, e.g. "Bruce<bruce@wayneenterprises.com>,..." (not sent in development)
+ * @param {string} [opts.bcc] - BCC, e.g. "Bruce<bruce@wayneenterprises.com>,..." (not sent in development)
  * @param {object} [opts.data] - common template data shared across recipients
  * @param {object} [opts.swigData] - vars for Nunjucks/Swig render only (not sent to Mailgun). Inherits data.
  * @param {string} [opts.from] - sender address, e.g. "Bruce<bruce@wayneenterprises.com>"
@@ -18,10 +19,11 @@
  * @param {{ filename: string, content: Buffer, contentType?: string }[]} [opts.attachments] - file attachments
  * @returns {Promise<[any, any]>} Resolves with [mailgunErr, mailgunInfo]
  */
-export function sendEmail({ template, to, config, bcc, data, swigData, from, replyTo, recipientVariables, subject, skipCssInline, test, attachments, }: {
+export function sendEmail({ template, to, config, cc, bcc, data, swigData, from, replyTo, recipientVariables, subject, skipCssInline, test, attachments, }: {
     template: string;
     to: string;
     config: Config;
+    cc?: string;
     bcc?: string;
     data?: object;
     swigData?: object;
