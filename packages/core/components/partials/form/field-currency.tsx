@@ -107,7 +107,9 @@ export function FieldCurrency({
   }
 
   function onChange(source: 'event' | 'prop', floatValue?: number) {
-    if (source === 'event') setDontFix(true)
+    // Prop changes came from the page, so pushing them back would loop
+    if (source === 'prop') return
+    setDontFix(true)
     if (onChangeProp) onChangeProp({ target: { name: props.name, value: to('cents', floatValue, settings) }})
     else setInternalValue(to('cents', floatValue, settings))
   }
@@ -127,9 +129,9 @@ export function FieldCurrency({
         thousandSeparator={settings.thousandSeparator}
         decimalScale={settings.maxDecimals}
         onValueChange={({ floatValue }, e) => onChange(e.source, floatValue)}
-        onBlur={() => { setLastBlurred(Date.now())}}
+        onBlur={() => { setDontFix(false); setLastBlurred(Date.now()) }}
         placeholder={props.placeholder || '0.00'}
-        value={inputValue}
+        value={inputValue ?? ''}
         suffix={settings.suffix}
         style={{ textIndent: `${prefixWidth}px` }}
         type="text"
