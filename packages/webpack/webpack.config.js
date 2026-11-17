@@ -1,7 +1,6 @@
 // import axios from '@hokify/axios'
 // import axiosRetry from 'axios-retry'
 import autoprefixer from 'autoprefixer'
-import CleanTerminalPlugin from 'clean-terminal-webpack-plugin'
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import CopyWebpackPlugin from 'copy-webpack-plugin'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
@@ -309,7 +308,7 @@ export const getConfig = (config) => {
       new MiniCssExtractPlugin({ filename: `assets/bundle.[name]${isBuild ? '.[contenthash]' : ''}.css` }),
       new HtmlWebpackPlugin({ template: clientDir + 'index.html', filename: distDir + 'index.html' }),
       new InterpolateHtmlPlugin(HtmlWebpackPlugin, { PUBLIC_PATH: publicPathResolved, NAME: name }),
-      new CleanTerminalPlugin({ skipFirstRun: true }),
+      new CleanTerminalPlugin(),
       // !isBuild && new ReactRefreshWebpackPlugin({ overlay: false }),
     ].filter(Boolean),
     resolve: {
@@ -354,6 +353,19 @@ class InterpolateHtmlPlugin {
             )
           }
         })
+    })
+  }
+}
+
+class CleanTerminalPlugin {
+  // Clears the terminal on watch rebuilds, skipping the first build (from boycce/clean-terminal-webpack-plugin, MIT)
+  firstRun = true
+  apply(compiler) {
+    compiler.hooks.afterCompile.tap('CleanTerminalPlugin', () => {
+      if (!this.firstRun && compiler.watchMode) process.stdout.write('\x1B[2J\x1B[3J\x1B[H')
+    })
+    compiler.hooks.done.tap('CleanTerminalPlugin', () => {
+      this.firstRun = false
     })
   }
 }
