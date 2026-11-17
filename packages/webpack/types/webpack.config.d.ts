@@ -176,7 +176,7 @@ export function getConfig(config: any): (env: any, argv: any) => {
         };
         minimize: boolean;
     };
-    plugins: any[];
+    plugins: (CopyWebpackPlugin | HtmlWebpackPlugin | MiniCssExtractPlugin | ESLintPlugin | InterpolateHtmlPlugin | CleanTerminalPlugin | CleanWebpackPlugin | webpack.DefinePlugin)[];
     resolve: {
         extensions: string[];
         alias: {
@@ -196,4 +196,21 @@ export function getConfig(config: any): (env: any, argv: any) => {
         ignored: RegExp;
     };
 }[];
+import CopyWebpackPlugin from 'copy-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import ESLintPlugin from 'eslint-webpack-plugin';
+declare class InterpolateHtmlPlugin {
+    constructor(htmlWebpackPlugin: any, replacements: any);
+    htmlWebpackPlugin: any;
+    replacements: any;
+    apply(compiler: any): void;
+}
+declare class CleanTerminalPlugin {
+    firstRun: boolean;
+    apply(compiler: any): void;
+}
+import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import webpack from 'webpack';
+export {};
 //# sourceMappingURL=webpack.config.d.ts.map
