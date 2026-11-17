@@ -404,9 +404,9 @@ export function Styleguide({ className, elements, children, currencies, groups }
         <div>
           <Heading>Loading Elements</Heading>
           <div class="flex flex-wrap gap-x-6 gap-y-4 items-center mb-6">
-            <div><Spinner /></div>
-            <div><Spinner className="border-secondary" /></div>
-            <div><Spinner className="border-primary border-[3px]" /></div>
+            <div className="flex"><Spinner /></div>
+            <div className="flex"><Spinner className="border-secondary" /></div>
+            <div className="flex"><Spinner className="border-primary border-[3px]" /></div>
             <div><LoadingWithDots message="Loading" /></div>
           </div>
         </div>
@@ -767,7 +767,7 @@ export function Styleguide({ className, elements, children, currencies, groups }
               {/* <div className="mt-2.5 mb-6 mt-input-before mb-input-after pt-2"> */}
               <TimePicker
                 value={state.time} 
-                className="min-h-[150] mt-2.5 mb-6 mt-input-before mb-input-after pt-2"
+                className="min-h-[150px] mt-2.5 mb-6 mt-input-before mb-input-after pt-2"
                 onChange={(value) => onChange({ target: { name: 'time', value: value }}, setState)} 
                 // Testing timezone support:
                 // tz="Pacific/Honolulu"

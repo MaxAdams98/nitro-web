@@ -13,7 +13,7 @@ export function Dashboard() {
       <p className="mb-4">
         Welcome to Nitro, a modular React/Express base project, styled using Tailwind 🚀.
       </p>
-      <p className="text-foreground">
+      <p className="flex text-foreground">
         <span className={`inline-flex items-center gap-x-1.5 rounded-md ${bgColor} px-1.5 py-0.5 text-xs font-medium ${textColor}`}>
           <svg viewBox="0 0 6 6" aria-hidden="true" className={`size-1.5 ${fillColor}`}>
             <circle r={3} cx={3} cy={3} />

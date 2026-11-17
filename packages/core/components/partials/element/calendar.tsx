@@ -112,6 +112,7 @@ export function Calendar({ value, numberOfMonths, month: monthProp, className, p
     classNames: {
       root: `${d.root} flex nitro-calendar`,
       months: `${d.months} flex-nowrap`,
+      month_grid: `${d.month_grid} text-[16px] leading-[normal]`,
       month_caption: `${d.month_caption} text-2xs pl-2`,
       caption_label: `${d.caption_label} z-auto`,
       button_previous: `${d.button_previous} size-8`,// [&:hover>svg]:fill-input-border-focus`,

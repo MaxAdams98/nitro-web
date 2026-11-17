@@ -28,7 +28,7 @@ export function Layout1() {
     <div class="bg-background min-w-fit">
       <Message icons={{} as MessageIcons} />
       <div class="flex-1">
-        <div class="max-w-[1800px] mx-auto lg:flex min-h-[100%] w-[100%] min-w-fit">
+        <div class="max-w-[1800px] mx-auto lg:flex min-h-screen w-[100%] min-w-fit">
           <Sidebar Logo={Logo} menu={menu} />
           <div class="py-10 px-14 flex-1">
             <Outlet />
@@ -44,7 +44,7 @@ export function Layout2() {
   return (
     <div class="bg-background">
       <Message icons={{} as MessageIcons} />
-      <div class="max-w-[1800px] mx-auto flex flex-col min-h-full w-full">
+      <div class="max-w-[1800px] mx-auto flex flex-col min-h-screen w-full">
         <div class="max-w-[700px] mx-auto flex-1 w-full px-5 py-10">
           <div class="border-b mb-6">
             <Link to="/signin" class="logo relative block -ml-1 -mt-1 p-1">
