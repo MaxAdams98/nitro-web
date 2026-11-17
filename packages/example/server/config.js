@@ -11,8 +11,7 @@ const config = {
   emailFrom: process.env.emailFrom,
   emailReplyTo: process.env.emailReplyTo,
   emailTestMode: process.env.emailTestMode,
-  emailRedirectTo: process.env.emailRedirectTo, // every email goes here instead, unless all recipients are on the allow list
-  emailAllowList: process.env.emailAllowList, // e.g. @wayneenterprises.com,alfred@example.com
+  emailRedirectTo: process.env.emailRedirectTo, // every email goes here instead, leave unset in production
   homepage: _require(pwd + 'package.json').homepage,
   mailgunDomain: process.env.mailgunDomain,
   mailgunKey: process.env.mailgunKey,
