@@ -1,6 +1,7 @@
 /**
  * Sends an email using a predefined template, with optional data/or recipientVariables
- * @typedef {{ baseUrl?: string, emailFrom?: string, mailgunDomain?: string, mailgunKey?: string, name?: string }} Config
+ * @typedef {{ baseUrl?: string, emailFrom?: string, env?: string, mailgunDomain?: string, mailgunKey?: string,
+ *   name?: string, pwd?: string, emailRedirectTo?: string }} Config
  *
  * @param {object} opts
  * @param {string} opts.template - Template name or raw HTML, e.g., 'reset-password'
@@ -47,8 +48,11 @@ export const optionalEmailConfigKeys: string[];
 export type Config = {
     baseUrl?: string;
     emailFrom?: string;
+    env?: string;
     mailgunDomain?: string;
     mailgunKey?: string;
     name?: string;
+    pwd?: string;
+    emailRedirectTo?: string;
 };
 //# sourceMappingURL=index.d.ts.map
