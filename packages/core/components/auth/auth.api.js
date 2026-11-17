@@ -12,6 +12,8 @@ import { isArray, pick, ucFirst, fullNameSplit, isEmail } from 'nitro-web/util'
 // Todo: detect if the user is already invited to the company, instead of token error
 
 const JWT_SECRET = process.env.JWT_SECRET || 'replace_this_with_secure_env_secret'
+const resetMaxAge = 1000 * 60 * 60 * 48 // 48 hours
+const inviteMaxAge = 1000 * 60 * 60 * 24 * 182 // 6 months
 let authConfig = null
 const resolveBaseUrlWarned = new Set()
 const requiredConfigKeys = [...requiredEmailConfigKeys]
@@ -555,7 +557,7 @@ export function tokenCreate(modelName, id) {
   })
 }
 
-export function tokenParse(token, modelName, maxAgeMs = 1000 * 60 * 60 * 24) {
+export function tokenParse(token, modelName, maxAgeMs = resetMaxAge) {
   let [hash, modelNameParsed, id, time] = (token || '').split(':')
   if (!hash || !id || !time) {
     throw { title: 'error', detail: 'Sorry your code is invalid.' }
@@ -597,7 +599,7 @@ export async function tokenConfirmForSingleTenant(req, isReset) {
   const { password, password2, ...userData } = req.body
   const tokenName = isReset ? 'resetToken' : 'inviteToken'
   const desktop = req.query.desktop
-  const _id = db.id(auth.tokenParse(token, 'user'))
+  const _id = db.id(auth.tokenParse(token, 'user', isReset ? resetMaxAge : inviteMaxAge))
   await auth.passwordValidate(password, password2)
 
   // Find the inviteToken, but bypass hooks because inviteToken may = true in a potential afterFind hook.
@@ -622,7 +624,7 @@ export async function tokenConfirmForSingleTenant(req, isReset) {
 export async function tokenConfirmForMultiTenant(req) {
   const token = req.params.token
   const desktop = req.query.desktop
-  const companyId = db.id(auth.tokenParse(token, 'company'))
+  const companyId = db.id(auth.tokenParse(token, 'company', inviteMaxAge))
 
   // Find the invite (we need to bypass hooks as inviteToken maybe true in an afterFind hook)
   const company = await db.company._findOne({ _id: companyId, 'invites.inviteToken': token }, { projection: { invites: 1, users: 1 } })
