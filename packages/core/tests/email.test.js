@@ -28,3 +28,33 @@ test('sendEmail redirects in test mode too, keeping the intended recipient\'s va
     console.info = info
   }
 })
+
+test('sendEmail passes extra headers to Mailgun as h: fields, which the transport keeps', async () => {
+  const info = console.info
+  const logged = []
+  console.info = (...args) => logged.push(args)
+  try {
+    await sendEmail({
+      config: { baseUrl: 'http://localhost:3000', emailFrom: 'Nitro<support@nitro.test>', name: 'nitro',
+        env: 'development', emailTestMode: true, pwd: process.cwd() },
+      template: '<p>Notice</p>',
+      subject: 'Notice',
+      to: 'jane@customer.test',
+      headers: {
+        'List-Unsubscribe': '<https://nitro.test/api/unsubscribe/abc>',
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        'X-Empty': '',
+      },
+    })
+    const sent = logged.find((args) => args[0] === 'Test mode: sendEmail mailgunOpts')?.[1]
+    assert.equal(sent['h:List-Unsubscribe'], '<https://nitro.test/api/unsubscribe/abc>')
+    assert.equal(sent['h:List-Unsubscribe-Post'], 'List-Unsubscribe=One-Click')
+    assert.ok(!('h:X-Empty' in sent))
+    // nodemailer-mailgun-transport forwards only whitelisted keys; h: headers are among them
+    const { default: transport } = await import('nodemailer-mailgun-transport')
+    const kept = transport._applyKeyWhitelist(sent)
+    assert.equal(kept['h:List-Unsubscribe-Post'], 'List-Unsubscribe=One-Click')
+  } finally {
+    console.info = info
+  }
+})

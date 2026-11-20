@@ -18,9 +18,10 @@
  * @param {boolean} [opts.skipCssInline] - skip CSS inlining
  * @param {boolean} [opts.test] - enable test mode
  * @param {{ filename: string, content: Buffer, contentType?: string }[]} [opts.attachments] - file attachments
+ * @param {{ [name: string]: string }} [opts.headers] - extra headers, e.g. { 'List-Unsubscribe': '<https://..>' }
  * @returns {Promise<[any, any]>} Resolves with [mailgunErr, mailgunInfo]
  */
-export function sendEmail({ template, to, config, cc, bcc, data, swigData, from, replyTo, recipientVariables, subject, skipCssInline, test, attachments, }: {
+export function sendEmail({ template, to, config, cc, bcc, data, swigData, from, replyTo, recipientVariables, subject, skipCssInline, test, attachments, headers, }: {
     template: string;
     to: string;
     config: Config;
@@ -39,6 +40,9 @@ export function sendEmail({ template, to, config, cc, bcc, data, swigData, from,
         content: Buffer;
         contentType?: string;
     }[];
+    headers?: {
+        [name: string]: string;
+    };
 }): Promise<[any, any]>;
 export const requiredEmailConfigKeys: string[];
 export const optionalEmailConfigKeys: string[];

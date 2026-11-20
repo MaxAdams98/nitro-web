@@ -37,6 +37,7 @@ export const optionalEmailConfigKeys = ['emailRedirectTo', 'emailReplyTo', 'emai
  * @param {boolean} [opts.skipCssInline] - skip CSS inlining
  * @param {boolean} [opts.test] - enable test mode
  * @param {{ filename: string, content: Buffer, contentType?: string }[]} [opts.attachments] - file attachments
+ * @param {{ [name: string]: string }} [opts.headers] - extra headers, e.g. { 'List-Unsubscribe': '<https://..>' }
  * @returns {Promise<[any, any]>} Resolves with [mailgunErr, mailgunInfo]
  */
 export async function sendEmail({ 
@@ -54,6 +55,7 @@ export async function sendEmail({
   skipCssInline,
   test,  
   attachments,
+  headers,
 }) {
   const isTest = config.emailTestMode || test
   if (!config) throw new Error('sendEmail: `config` missing')
@@ -123,6 +125,7 @@ export async function sendEmail({
     bcc: redirectTo ? undefined : bcc,
     emailTemplateDir: getDirectories(path, config.pwd).emailTemplateDir,
     from: from,
+    headers: headers,
     isDev: config.env === 'development',
     recipientVariables: recipientVariables,
     replyTo: replyTo,
@@ -225,6 +228,8 @@ async function sendWithMailgun(settings, html) {
     ...(settings.cc ? { cc: settings.cc } : {}),
     ...(settings.bcc ? { bcc: settings.bcc } : {}),
     ...(settings.attachments?.length ? { attachments: settings.attachments } : {}),
+    // Extra headers go to Mailgun as h:<name>, e.g. List-Unsubscribe for one-click unsubscribe (RFC 8058)
+    ...Object.fromEntries(Object.entries(settings.headers || {}).filter(([, v]) => v).map(([k, v]) => ['h:' + k, v])),
     from: settings.from,
     html: processedhtml,
     'h:Reply-To': settings.replyTo,
