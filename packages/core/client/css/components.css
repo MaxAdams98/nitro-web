@@ -13,6 +13,10 @@
 /* ---- Tailwind UI Components ---------- */
 
 @layer base {
+  /* Stops the parent line height stretching labels in standards mode */
+  label {
+    display: block;
+  }
   .border-bottom-with-space {
     @apply relative mb-[6px] after:content-[""] after:absolute after:bottom-[-4px] after:left-0 after:h-[1px] after:w-full after:bg-border;
   }

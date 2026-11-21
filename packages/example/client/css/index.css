@@ -34,10 +34,6 @@
   label, .label {
     @apply text-sm font-medium;
   }
-  /* Simulate quirks mode, where the parent line height doesn't stretch labels */
-  label {
-    @apply block w-fit;
-  }
   /* Extend Nitro components */
   /* .nitro-error {
     @apply !text-sm;
